@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "author": "Đỗ Huy",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard", "id": "bb1", "top": -89.4, "left": -6.8, "attrs": {} },
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": -66.98, "left": -161.14, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -154.93, "left": 62.7, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 34.11,
+      "left": 27.06,
+      "attrs": { "value": "1000" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    [ "dht1:VCC", "bb1:7t.a", "", [ "$bb" ] ],
+    [ "dht1:SDA", "bb1:8t.a", "", [ "$bb" ] ],
+    [ "dht1:NC", "bb1:9t.a", "", [ "$bb" ] ],
+    [ "dht1:GND", "bb1:10t.a", "", [ "$bb" ] ],
+    [ "bb1:bp.1", "esp:GND.1", "red", [ "v0" ] ],
+    [ "r1:1", "bb1:2b.g", "", [ "$bb" ] ],
+    [ "r1:2", "bb1:8b.g", "", [ "$bb" ] ],
+    [ "bb1:2b.j", "esp:3V3", "green", [ "v0" ] ],
+    [ "bb1:7t.d", "bb1:2b.f", "green", [ "v24.04", "h-48" ] ],
+    [ "bb1:8t.d", "bb1:8b.f", "green", [ "v0" ] ],
+    [ "bb1:10t.d", "bb1:bp.7", "red", [ "v0" ] ],
+    [ "bb1:8t.b", "esp:D22", "gold", [ "v-4.59", "h-146.24" ] ]
+  ],
+  "dependencies": {}
+}
