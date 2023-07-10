@@ -1,7 +1,11 @@
+#include "define.h"
 #include "connWifi.h"
+#include "humidTemp.h"
 // #include <HTTPClient.h>
 #include <Arduino.h>
-#include "DHT.h"
+#include <string>
+
+using namespace std;
 
 const int dhtPin = 22;
 const int dhtType = DHT22; // Type of dht
@@ -27,18 +31,20 @@ void loop()
   // int status = http.GET();
   // Serial.println(status);
 
+  // This is function Warning
   delay(10); // this speeds up the simulation
+  humidity(dht);
+  temperature(dht, Cescius);
+  delay(1000);
 
-  bool checkTemp = false;
-  //checkTypeTemp();
-  float humid = dht.readHumidity();
-  float temp = dht.readTemperature(checkTemp);
-  Serial.print("Humidity: ");
-  Serial.print(humid);
-  Serial.println("%");
-  Serial.print("Temperature: ");
-  Serial.print(temp);
-  if(checkTemp) Serial.println("°F"); //°: Option/Alt +Shift + 8
-  else Serial.println("°C"); 
-  delay(500);
+  // This is function control
+  string response = "ON";
+  if (response == "ON")
+  {
+  }
+  else
+  {
+  }
+
+  
 }
