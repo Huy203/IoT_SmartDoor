@@ -134,21 +134,18 @@ void loop()
 
   //Publish humidity
   snprintf(buffer, 50, "%.2lf", humid);
-  Serial.print(buffer);
   mqttClient.publish("IOT_SMARTDOOR/humid", buffer);
   //Publish temperature
   snprintf(buffer, 50, "%.2lf", temp);
-  Serial.print(buffer);
   mqttClient.publish("IOT_SMARTDOOR/temp", buffer);
   //Publish type of temperature
   snprintf(buffer, 50, "%s", type ? "true":"false");
-  Serial.print(buffer);
   mqttClient.publish("IOT_SMARTDOOR/type_temp", buffer);
   
    // Object detection - open/close door
   motionDetection();
 
   /*Function CONTROL*/
-  
+
 
 }
