@@ -1,7 +1,7 @@
 #include "define.h"
 #include "connWifi.h"
 #include "humidTemp.h"
-// #include <HTTPClient.h>
+#include <PubSubClient.h>
 #include <Arduino.h>
 #include <string> 
 
@@ -15,7 +15,47 @@ const int insidePirPin = 4;
 
 DHT dht(dhtPin, dhtType);
 
-const String url = "link";
+
+//***Set server***
+const char* mqttServer = "broker.hivemq.com"; 
+int port = 1883;
+
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient);
+
+TypeTemp type = Cescius;
+
+void mqttConnect() {
+  while(!mqttClient.connected()) {
+    Serial.println("Attemping MQTT connection...");
+    String clientId = "ESP32Client-";
+    clientId += String(random(0xffff), HEX);
+    if(mqttClient.connect(clientId.c_str())) {
+      Serial.println("connected");
+
+      //***Subscribe all topic you need***
+     
+    }
+    else {
+      Serial.println("Try again in 2 seconds");
+      delay(2000);
+    }
+  }
+}
+
+//MQTT Receiver
+void callback(char* topic, byte* message, unsigned int length) {
+  Serial.println(topic);
+  String strMsg;
+  for(int i=0; i<length; i++) {
+    strMsg += (char)message[i];
+  }
+  Serial.println(strMsg);
+
+  //***Code here to process the received package***
+
+}
+
 
 int outsideVal = 0; // read value of 2 PIR sensors
 int insideVal = 0;
@@ -71,32 +111,44 @@ void setup()
   pinMode(outsidePirPin, INPUT);
   pinMode(insidePirPin, INPUT);
   dht.begin();
+  mqttClient.setServer(mqttServer, port);
+  mqttClient.setCallback(callback);
+  mqttClient.setKeepAlive( 90 );
 }
 
 void loop()
 {
-  // HTTPClient http;
-  // http.begin(url);
-  // int status = http.GET();
-  // Serial.println(status);
-
-  // This is function Warning
   delay(10); // this speeds up the simulation
-  humidity(dht);
-  temperature(dht, Cescius);
-  delay(1000);
+  if(!mqttClient.connected()) {
+    mqttConnect();
+  }
+  mqttClient.loop();
 
-  // Object detection - open/close door
+  /*Function WARNING*/ 
+
+  float humid = humidity(dht);
+  float temp = temperature(dht, type);
+  delay(500);
+
+  char buffer [50];
+
+  //Publish humidity
+  snprintf(buffer, 50, "%.2lf", humid);
+  Serial.print(buffer);
+  mqttClient.publish("IOT_SMARTDOOR/humid", buffer);
+  //Publish temperature
+  snprintf(buffer, 50, "%.2lf", temp);
+  Serial.print(buffer);
+  mqttClient.publish("IOT_SMARTDOOR/temp", buffer);
+  //Publish type of temperature
+  snprintf(buffer, 50, "%s", type ? "true":"false");
+  Serial.print(buffer);
+  mqttClient.publish("IOT_SMARTDOOR/type_temp", buffer);
+  
+   // Object detection - open/close door
   motionDetection();
 
-  // This is function control
-  string response = "ON";
-  if (response == "ON")
-  {
-  }
-  else
-  {
-  }
-
+  /*Function CONTROL*/
   
+
 }

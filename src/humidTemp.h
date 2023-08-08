@@ -1,14 +1,15 @@
 #include "DHT.h"
 #include <string.h>
 
-void humidity(DHT dht)
+float humidity(DHT dht)
 {
     float humid = dht.readHumidity();
     Serial.print("Humidity: ");
     Serial.print(humid);
     Serial.println("%");
+    return humid;
 }
-void temperature(DHT dht, bool type)
+float temperature(DHT dht, bool type)
 {
     float temp = dht.readTemperature(type);
     Serial.print("Temperature: ");
@@ -25,4 +26,5 @@ void temperature(DHT dht, bool type)
     {
         Serial.println("DANGEROUS");
     }
+    return temp;
 }
