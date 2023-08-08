@@ -12,23 +12,50 @@
       "top": 34.11,
       "left": 27.06,
       "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-pir-motion-sensor",
+      "id": "pir1",
+      "top": -130.4,
+      "left": 251.82,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pir-motion-sensor",
+      "id": "pir2",
+      "top": -130.4,
+      "left": 405.42,
+      "attrs": {}
     }
   ],
   "connections": [
     [ "esp:TX0", "$serialMonitor:RX", "", [] ],
     [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    [ "bb1:bp.1", "esp:GND.1", "red", [ "v0" ] ],
+    [ "bb1:7t.d", "bb1:2b.f", "green", [ "v24.04", "h-48" ] ],
+    [ "bb1:8t.d", "bb1:8b.f", "green", [ "v0" ] ],
+    [ "bb1:10t.d", "bb1:bp.7", "red", [ "v0" ] ],
+    [ "bb1:8t.b", "esp:D22", "gold", [ "v-4.59", "h-146.24" ] ],
+    [ "esp:D2", "bb1:30t.d", "gold", [ "h0" ] ],
+    [ "bb1:bn.23", "bb1:29t.d", "blue", [ "v0" ] ],
+    [ "bb1:31t.d", "bb1:bp.25", "red", [ "v0" ] ],
+    [ "esp:D4", "bb1:46t.d", "orange", [ "h0" ] ],
+    [ "bb1:45t.d", "bb1:bn.36", "blue", [ "v0" ] ],
+    [ "bb1:47t.d", "bb1:bp.38", "red", [ "v0" ] ],
+    [ "esp:3V3", "bb1:bn.1", "blue", [ "v0" ] ],
+    [ "bb1:bn.2", "bb1:2b.j", "blue", [ "v0" ] ],
     [ "dht1:VCC", "bb1:7t.a", "", [ "$bb" ] ],
     [ "dht1:SDA", "bb1:8t.a", "", [ "$bb" ] ],
     [ "dht1:NC", "bb1:9t.a", "", [ "$bb" ] ],
     [ "dht1:GND", "bb1:10t.a", "", [ "$bb" ] ],
-    [ "bb1:bp.1", "esp:GND.1", "red", [ "v0" ] ],
     [ "r1:1", "bb1:2b.g", "", [ "$bb" ] ],
     [ "r1:2", "bb1:8b.g", "", [ "$bb" ] ],
-    [ "bb1:2b.j", "esp:3V3", "green", [ "v0" ] ],
-    [ "bb1:7t.d", "bb1:2b.f", "green", [ "v24.04", "h-48" ] ],
-    [ "bb1:8t.d", "bb1:8b.f", "green", [ "v0" ] ],
-    [ "bb1:10t.d", "bb1:bp.7", "red", [ "v0" ] ],
-    [ "bb1:8t.b", "esp:D22", "gold", [ "v-4.59", "h-146.24" ] ]
+    [ "pir2:VCC", "bb1:45t.a", "", [ "$bb" ] ],
+    [ "pir2:OUT", "bb1:46t.a", "", [ "$bb" ] ],
+    [ "pir2:GND", "bb1:47t.a", "", [ "$bb" ] ],
+    [ "pir1:VCC", "bb1:29t.a", "", [ "$bb" ] ],
+    [ "pir1:OUT", "bb1:30t.a", "", [ "$bb" ] ],
+    [ "pir1:GND", "bb1:31t.a", "", [ "$bb" ] ]
   ],
   "dependencies": {}
 }
