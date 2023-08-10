@@ -175,12 +175,12 @@ void loop()
   motionDetection();
 
   char result[4];
-
-  dtostrf(getOut, 4, 0, result);
-  mqttClient.publish(getOutTopic, result);
-
+  
   dtostrf(getIn, 4, 0, result);
   mqttClient.publish(getInTopic, result);
+  
+  dtostrf(getOut, 4, 0, result);
+  mqttClient.publish(getOutTopic, result);
 
   mqttClient.loop();
 
