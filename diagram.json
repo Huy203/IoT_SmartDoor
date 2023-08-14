@@ -26,7 +26,8 @@
       "top": -130.4,
       "left": 405.42,
       "attrs": {}
-    }
+    },
+    { "type": "wokwi-lcd1602", "id": "lcd1", "top": 120.08, "left": 345.28, "attrs": {} }
   ],
   "connections": [
     [ "esp:TX0", "$serialMonitor:RX", "", [] ],
@@ -50,12 +51,12 @@
     [ "dht1:GND", "bb1:10t.a", "", [ "$bb" ] ],
     [ "r1:1", "bb1:2b.g", "", [ "$bb" ] ],
     [ "r1:2", "bb1:8b.g", "", [ "$bb" ] ],
-    [ "pir2:VCC", "bb1:45t.a", "", [ "$bb" ] ],
-    [ "pir2:OUT", "bb1:46t.a", "", [ "$bb" ] ],
-    [ "pir2:GND", "bb1:47t.a", "", [ "$bb" ] ],
     [ "pir1:VCC", "bb1:29t.a", "", [ "$bb" ] ],
     [ "pir1:OUT", "bb1:30t.a", "", [ "$bb" ] ],
-    [ "pir1:GND", "bb1:31t.a", "", [ "$bb" ] ]
+    [ "pir1:GND", "bb1:31t.a", "", [ "$bb" ] ],
+    [ "pir2:VCC", "bb1:45t.a", "", [ "$bb" ] ],
+    [ "pir2:OUT", "bb1:46t.a", "", [ "$bb" ] ],
+    [ "pir2:GND", "bb1:47t.a", "", [ "$bb" ] ]
   ],
   "dependencies": {}
 }
