@@ -1,10 +1,11 @@
 #include <WiFi.h>
 
-void conn()
+void connectWifi()
 {
   WiFi.begin("Wokwi-GUEST", "");
 
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED)
+  {
     Serial.print(".");
     delay(250);
   }
