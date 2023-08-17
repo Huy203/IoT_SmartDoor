@@ -1,5 +1,4 @@
 #include "DHT.h"
-#include <string.h>
 
 // Init DHT
 const int dhtPin = 22;

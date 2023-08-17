@@ -1,16 +1,19 @@
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <string>
-#include <sstream>
-#include <iomanip>
-
 #include "define.h"
-
-using namespace std;
 
 static LiquidCrystal_I2C lcd(I2C_ADDR, LCD_COLUMNS, LCD_LINES);
 
 int postID = 0;
+
+void LCDalarm()
+{
+    lcd.clear();
+    lcd.setCursor(3, 0);
+    lcd.print("DANGEROUS!");
+}
+
+void LCDreset(){
+    postID = 0;
+}
 
 void setLCD(float temp, float humid, TypeTemp type)
 {
@@ -47,15 +50,5 @@ void setLCD(float temp, float humid, TypeTemp type)
         lcd.print(buffer);
     }
     else
-    {
-        lcd.clear();
-        lcd.setCursor(3, 0);
-        lcd.print("DANGEROUS!");
-    }
-}
-void LCDalarm()
-{
-    lcd.clear();
-    lcd.setCursor(3, 0);
-    lcd.print("DANGEROUS!");
+        LCDalarm();
 }
