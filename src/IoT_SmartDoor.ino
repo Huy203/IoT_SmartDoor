@@ -21,10 +21,12 @@ bool alertTemp = false;
 
 void setup()
 {
-  // put your setup code here, to run once:
   Serial.begin(115200);
-  connectWifi(); // connect to Wifi Wokwi-Guest
 
+  // connect to Wifi Wokwi-Guest
+  connectWifi();
+
+  // connect to DHT22
   dht.begin();
 
   // set up for firebase
@@ -58,13 +60,12 @@ void setup()
 void loop()
 {
   delay(10); // this speeds up the simulation
+
   bool buttonState = digitalRead(button);
-  Serial.println(buttonState);
-  // set leds when button is pressed
+  // set alert when button is pressed
   if (buttonState == HIGH)
   {
-    Serial.println("HIGH");
-    if (millis() - buttonPressTime > 5000 || alertTemp)
+    if (millis() - buttonPressTime > 2000 || alertTemp)
     {
       LCDalert();
       Firebase.setBool(firebaseData, "/door/alertTemp", true);
@@ -89,7 +90,10 @@ void loop()
           {
             // push Temperature
             Firebase.setFloat(firebaseData, "/env/temperature", temp);
-            setLCD(temp, humid, type);
+            if (setLCD(temp, humid, type) != 0)
+            {
+              Firebase.setBool(firebaseData, "/door/alertTemp", true);
+            }
             Serial.println("set new temperature done");
           }
         }
@@ -115,7 +119,6 @@ void loop()
             Serial.println("set new type of temperature done");
           }
         }
-        postId = postId + 1;
       }
     }
     buttonPressTime = millis();
