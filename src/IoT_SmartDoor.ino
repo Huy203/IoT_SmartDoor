@@ -12,12 +12,12 @@ FirebaseJson json;
 // Init type of Temperature
 TypeTemp type = TypeTemp::Cescius;
 
-// Init button alarmTemp
+// Init button alertTemp
 int button = 25;
 int buttonPressTime = 0;
 
-// Init check alarmTemp
-bool alarmTemp = false;
+// Init check alertTemp
+bool alertTemp = false;
 
 void setup()
 {
@@ -37,7 +37,7 @@ void setup()
   else
     Serial.println("Not connected to Firebase");
 
-  // set up button alarmTemp
+  // set up button alertTemp
   pinMode(button, INPUT);
 
   // Init
@@ -49,7 +49,7 @@ void setup()
   lcd.print("LCD Start");
 
   // set up init parameters
-  Firebase.setBool(firebaseData, "/door/alarmTemp", alarmTemp);
+  Firebase.setBool(firebaseData, "/door/alertTemp", alertTemp);
   Firebase.setBool(firebaseData, "/env/type", type);
   Firebase.setFloat(firebaseData, "/env/temperature", 0);
   Firebase.setFloat(firebaseData, "/env/humidity", 0);
@@ -64,20 +64,19 @@ void loop()
   if (buttonState == HIGH)
   {
     Serial.println("HIGH");
-    if (millis() - buttonPressTime > 5000 || alarmTemp)
+    if (millis() - buttonPressTime > 5000 || alertTemp)
     {
-      LCDalarm();
-      Firebase.setBool(firebaseData, "/door/alarmTemp", true);
-      Serial.println("alarmTemp done");
+      LCDalert();
+      Firebase.setBool(firebaseData, "/door/alertTemp", true);
+      Serial.println("alertTemp done");
     }
   }
   else
   {
-    if (Firebase.getBool(firebaseData, "/door/alarmTemp"))
+    if (Firebase.getBool(firebaseData, "/door/alertTemp"))
     {
-      Serial.println("checked");
-      alarmTemp = firebaseData.boolData();
-      if (!alarmTemp)
+      alertTemp = firebaseData.boolData();
+      if (!alertTemp)
       {
         float humid = humidity();
         float temp = temperature(type);
@@ -119,51 +118,6 @@ void loop()
         postId = postId + 1;
       }
     }
-    // else
-    // {
-    //   if (check != "alarmTemp")
-    //   {
-    //     LCDreset();
-    //     float humid = humidity();
-    //     float temp = temperature(type);
-
-    //     // get data from firebase
-    //     if (Firebase.getFloat(firebaseData, "/env/temperature"))
-    //     {
-    //       float oldTemp = firebaseData.floatData();
-    //       if (oldTemp != temp)
-    //       {
-    //         // push Temperature
-    //         Firebase.setFloat(firebaseData, "/env/temperature", temp);
-    //         setLCD(temp, humid, type);
-    //         Serial.println("set new temperature done");
-    //       }
-    //     }
-    //     if (Firebase.getFloat(firebaseData, "/env/humidity"))
-    //     {
-    //       float oldHumid = firebaseData.floatData();
-    //       if (oldHumid != humid)
-    //       {
-    //         // push Humidity
-    //         Firebase.setFloat(firebaseData, "/env/humidity", humid);
-    //         setLCD(temp, humid, type);
-    //         Serial.println("set new humidity done");
-    //       }
-    //     }
-    //     if (Firebase.getBool(firebaseData, "/env/type"))
-    //     {
-    //       TypeTemp newType = (TypeTemp)firebaseData.boolData();
-    //       if (newType != type)
-    //       {
-    //         // set type of temperature
-    //         type = newType;
-    //         setLCD(temp, humid, type);
-    //         Serial.println("set new type of temperature done");
-    //       }
-    //     }
-    //     postId = postId + 1;
-    //   }
-    // }
     buttonPressTime = millis();
   }
 }

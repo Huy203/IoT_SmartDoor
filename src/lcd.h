@@ -4,7 +4,7 @@ static LiquidCrystal_I2C lcd(I2C_ADDR, LCD_COLUMNS, LCD_LINES);
 
 int postID = 0;
 
-void LCDalarm()
+void LCDalert()
 {
     lcd.clear();
     lcd.setCursor(3, 0);
@@ -50,5 +50,5 @@ void setLCD(float temp, float humid, TypeTemp type)
         lcd.print(buffer);
     }
     else
-        LCDalarm();
+        LCDalert();
 }
