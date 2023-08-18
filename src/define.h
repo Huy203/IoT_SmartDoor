@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <Arduino.h>
 #include <FirebaseESP32.h>
+#include <ctime>
+#include <iostream>
 
 using namespace std;
 
@@ -22,3 +24,8 @@ enum TypeTemp
 #define I2C_ADDR 0x27
 #define LCD_COLUMNS 20
 #define LCD_LINES 4
+
+// Time
+#define NTP_SERVER     "pool.ntp.org"
+#define UTC_OFFSET     0
+#define UTC_OFFSET_DST 0
