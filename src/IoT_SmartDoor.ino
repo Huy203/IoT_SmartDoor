@@ -23,7 +23,7 @@ bool alertTemp = false;
 void pushTimeToFirebase(struct tm *timeinfo)
 {
   // Format the time and date strings
-  char timeStr[30]; 
+  char timeStr[30];
   strftime(timeStr, sizeof(timeStr), "%H:%M:%S %d/%m/%Y   %Z", timeinfo);
 
   // Add the formatted strings to JSON
@@ -111,10 +111,20 @@ void loop()
       alertTemp = firebaseData.boolData();
       if (!alertTemp)
       {
+        // get data from firebase
+        if (Firebase.getBool(firebaseData, "/env/type"))
+        {
+          TypeTemp newType = (TypeTemp)firebaseData.boolData();
+          if (newType != type)
+          {
+            // set type of temperature
+            type = newType;
+            // setLCD(temp, humid, type);
+            Serial.println("set new type of temperature done");
+          }
+        }
         float humid = humidity();
         float temp = temperature(type);
-
-        // get data from firebase
         if (Firebase.getFloat(firebaseData, "/env/temperature"))
         {
           float oldTemp = firebaseData.floatData();
@@ -138,17 +148,6 @@ void loop()
             Firebase.setFloat(firebaseData, "/env/humidity", humid);
             setLCD(temp, humid, type);
             Serial.println("set new humidity done");
-          }
-        }
-        if (Firebase.getBool(firebaseData, "/env/type"))
-        {
-          TypeTemp newType = (TypeTemp)firebaseData.boolData();
-          if (newType != type)
-          {
-            // set type of temperature
-            type = newType;
-            setLCD(temp, humid, type);
-            Serial.println("set new type of temperature done");
           }
         }
       }
