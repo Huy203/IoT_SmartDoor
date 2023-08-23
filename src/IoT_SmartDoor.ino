@@ -134,6 +134,7 @@ void loop()
             if (setLCD(temp, humid, type) != 0)
             {
               Firebase.setBool(firebaseData, "/door/tempAlert", true);
+              Serial.println("Alert Temp done");
             }
           }
         }
