@@ -135,7 +135,6 @@ void loop()
             {
               Firebase.setBool(firebaseData, "/door/tempAlert", true);
             }
-            Serial.println("Alert temp done");
           }
         }
         if (Firebase.getFloat(firebaseData, "/env/humidity"))
