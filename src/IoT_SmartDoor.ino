@@ -10,7 +10,7 @@ FirebaseData firebaseData;
 FirebaseJson jsonData;
 
 // Init type of Temperature
-TypeTemp type = TypeTemp::Cescius;
+TypeTemp type = TypeTemp::Fahrenheit;
 
 // Init button alertTemp
 int button = 25;
@@ -81,7 +81,7 @@ void setup()
 
   // set up init parameters
   Firebase.setBool(firebaseData, "/door/tempAlert", alertTemp);
-  Firebase.setBool(firebaseData, "/env/type", !type);
+  Firebase.setBool(firebaseData, "/env/type", type);
   Firebase.setFloat(firebaseData, "/env/temperature", 0);
   Firebase.setFloat(firebaseData, "/env/humidity", 0);
 
@@ -152,5 +152,6 @@ void loop()
       }
     }
     printLocalTime();
+    buttonPressTime = millis();
   }
 }
