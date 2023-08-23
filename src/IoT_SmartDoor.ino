@@ -1,271 +1,157 @@
-#include <Arduino.h>
-#include <FirebaseESP32.h>
-#include <WiFi.h>
-#include <ESP32Servo.h>
+#include "connWifi.h"
+#include "lcd.h"
+// #include "currentTime.h"
 
-#define FIREBASE_HOST "https://testfirebase-165c4-default-rtdb.asia-southeast1.firebasedatabase.app/"
-#define FIREBASE_AUTH "AIzaSyC3HBYPCoFbrjZUk7O-XpU6YNw_vVnC_Xc"
+using namespace std;
 
+// Init Firebase
+int postId = 0;
 FirebaseData firebaseData;
-FirebaseJson json;
+FirebaseJson jsonData;
 
-// set device pin
-const int outsidePirPin = 25; 
-const int insidePirPin = 5;
+// Init type of Temperature
+TypeTemp type = TypeTemp::Fahrenheit;
 
-const int outsideServoPin = 32;
-const int insideServoPin = 19;
+// Init button alertTemp
+int button = 25;
+int buttonPressTime = 0;
 
-// set device
-Servo outsideDoor;
-Servo insideDoor;
+// Init check alertTemp
+bool alertTemp = false;
 
-// set global variable
-int outsideVal = 0; // read value of 2 PIR sensors
-int insideVal = 0;
+// void pushTimeToFirebase(struct tm *timeinfo)
+// {
+//   // Format the time and date strings
+//   char timeStr[30];
+//   strftime(timeStr, sizeof(timeStr), "%H:%M:%S %d/%m/%Y   %Z", timeinfo);
 
-int outsidePirState = LOW; // state of 2 PIR sensors
-int insidePirState = LOW;
-int doorState = false; // state of door - false -> closed | true -> opened
+//   // Add the formatted strings to JSON
+//   jsonData.add("alertTemp", timeStr);
+//   if (Firebase.pushJSON(firebaseData, "/history/", jsonData))
+//     Serial.println("Time data sent to Firebase successfully");
+//   else
+//   {
+//     Serial.println("Failed to send time data to Firebase");
+//     Serial.println(firebaseData.errorReason());
+//   }
+// }
 
-int getIn = 0; // number of people got into and got out
-int getOut = 0;
-
-bool tempAlert = false; // for temperature alert
-bool tempAlertState = false; // state of temperature alert - false -> no alert | true -> alert
-
-bool onSecurity = false; // mode security of door
-
-bool intruderAlert = false; // for intruder alert
-
-int previousMillis = 0; // for push in cyclically
-
-String control = "auto"; // door mode
-
-// connect to Wokwi Wifi
-void connectWifi(){
-  WiFi.begin("Wokwi-GUEST", "");
-  while (WiFi.status() != WL_CONNECTED){
-    Serial.print(".");
-    delay(250);
+void printLocalTime()
+{
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+    return;
   }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  // Push time and date data to Firebase
+  // pushTimeToFirebase(&timeinfo);
 }
 
-// open door instruction
-void openDoor(){
-  doorState = true;
-  insideDoor.write(0);
-  outsideDoor.write(0);
-}
-
-// close door instruction
-void closeDoor(){
-  doorState = false;
-  insideDoor.write(90);
-  outsideDoor.write(90);
-}
-
-// read sensor and handle value
-void handleSensor(){
-  // read sensor value
-  outsideVal = digitalRead(outsidePirPin);
-  insideVal = digitalRead(insidePirPin);
-
-  if(outsideVal == HIGH){
-    if(outsidePirState == LOW){
-      Serial.println("People from outside detected");
-      outsidePirState = HIGH;
-      if(!onSecurity){
-        // if not on security -> open door
-        openDoor();
-        if(insideVal == HIGH) // if there's people from inside -> people getting out of the building
-          getOut++;
-      }
-      else {
-        // if on security -> set alert of intruder
-        if(!intruderAlert){
-          intruderAlert = true;
-          Serial.println("Intruder Alert!!!");
-        }
-      }
-    }
-  }
-  else {
-    if(outsidePirState){
-      Serial.println("No people from outside");
-      outsidePirState = LOW;
-    }
-  }
-  
-  if(insideVal == HIGH){
-    if(insidePirState == LOW){
-      Serial.println("People from inside detected");
-      insidePirState = HIGH;
-      if(!onSecurity){
-        // if not on security -> open door
-        openDoor();
-        if(outsideVal == HIGH) // if there's people from outside -> people getting into the building
-          getIn++;
-      }
-      else {
-        // if on security -> set alert of intruder
-        if(!intruderAlert){
-          intruderAlert = true;
-          Serial.println("Intruder Alert!!!");
-        }
-      }
-    }
-  }
-  else {
-    if(insidePirState){
-      Serial.println("No people from inside");
-      insidePirState = LOW;
-    }
-  }
-
-  if(outsidePirState == LOW && insidePirState == LOW){
-    if(doorState){
-      Serial.println("No people detected");
-      closeDoor();
-    }
-    if(onSecurity && intruderAlert){
-      Serial.println("No intruder detected");
-      intruderAlert = false;
-    }
-  }
-}
-
-// get signal from web on handle it
-void handleSignal(){
-  // read signal of temperature alert
-  if(Firebase.getBool(firebaseData, "door/tempAlert")){
-    tempAlert = firebaseData.boolData();
-  }
-  
-  // if on temperature alert, open door
-  if(tempAlert){
-    if(!tempAlertState){
-      tempAlertState = true;
-      openDoor();
-    }
-  }
-  else {
-    // else, read other signal
-    if(tempAlertState)
-      tempAlertState = false;
-    
-    // read signal of security mode
-    if(Firebase.getBool(firebaseData, "door/security")){
-      onSecurity = firebaseData.boolData();
-    }
-
-    if(onSecurity){
-      // detect possible intruder if on security mode
-      if(Firebase.getBool(firebaseData, "door/intruderAlert")){
-        intruderAlert = firebaseData.boolData();
-      }
-    }
-
-    // get signal of orther door mode
-    if(Firebase.getString(firebaseData, "door/control")){
-      control = firebaseData.stringData();
-    }
-  }
-}
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
+
+  // connect to Wifi Wokwi-Guest
   connectWifi();
 
-  // set up device
-  insideDoor.attach(insideServoPin);
-  outsideDoor.attach(outsideServoPin);
+  // connect to DHT22
+  dht.begin();
 
-  // connect to firebase
+  // set up for firebase
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
   Firebase.reconnectWiFi(true);
   Firebase.setReadTimeout(firebaseData, 1000 * 60);
   Firebase.setwriteSizeLimit(firebaseData, "tiny");
-
   if (Firebase.ready())
     Serial.println("Connected to Firebase");
   else
     Serial.println("Not connected to Firebase");
 
-  // read assigned value
-  if(Firebase.getInt(firebaseData, "/door/monitor/getIn")){
-    getIn = firebaseData.intData();
-    Firebase.setInt(firebaseData, "/door/monitor/getIn", getIn);
-  }
+  // set up button alertTemp
+  pinMode(button, INPUT);
 
-  if(Firebase.getInt(firebaseData, "/door/monitor/getOut")){
-    getOut = firebaseData.intData();
-    Firebase.setInt(firebaseData, "/door/monitor/getOut", getOut);
-  }
+  // Init
+  lcd.init();
+  lcd.backlight();
 
-  if(Firebase.getBool(firebaseData, "/door/security")){
-    onSecurity = firebaseData.boolData();
-  }
+  // Print something
+  lcd.setCursor(3, 0);
+  lcd.print("LCD Start");
 
-  if(Firebase.getString(firebaseData, "door/control")){
-    control = firebaseData.stringData();
-  }
+  // set up init parameters
+  Firebase.setBool(firebaseData, "/door/tempAlert", alertTemp);
+  Firebase.setBool(firebaseData, "/env/type", type);
+  Firebase.setFloat(firebaseData, "/env/temperature", 0);
+  Firebase.setFloat(firebaseData, "/env/humidity", 0);
+
+  // set up time
+  configTime(UTC_OFFSET, UTC_OFFSET_DST, NTP_SERVER);
 }
 
-void loop() {
-  handleSignal();
-  
-  if(!tempAlertState){
-    if(control == "auto"){
-      handleSensor();
-
-      if(onSecurity){
-        if(Firebase.getBool(firebaseData, "door/intruderAlert")){
-          int old_intruderAlert = firebaseData.boolData();
-          if(old_intruderAlert != intruderAlert){ 
-            Firebase.setBool(firebaseData, "door/intruderAlert", intruderAlert);
-            Serial.println("Set new intruder alert");
+void loop()
+{
+  jsonData.clear();
+  bool buttonState = digitalRead(button);
+  // set alert when button is pressed
+  if (buttonState == HIGH)
+  {
+    if (millis() - buttonPressTime > 5000 || alertTemp)
+    {
+      LCDalert();
+      Firebase.setBool(firebaseData, "/door/tempAlert", true);
+      Serial.println("alert temp done");
+    }
+  }
+  else
+  {
+    if (Firebase.getBool(firebaseData, "/door/tempAlert"))
+    {
+      alertTemp = firebaseData.boolData();
+      if (!alertTemp)
+      {
+        // get data from firebase
+        if (Firebase.getBool(firebaseData, "/env/type"))
+        {
+          TypeTemp newType = (TypeTemp)firebaseData.boolData();
+          if (newType != type)
+          {
+            // set type of temperature
+            type = newType;
+            // setLCD(temp, humid, type);
+            Serial.println("set new type of temperature done");
+          }
+        }
+        float humid = humidity();
+        float temp = temperature(type);
+        if (Firebase.getFloat(firebaseData, "/env/temperature"))
+        {
+          float oldTemp = firebaseData.floatData();
+          if (oldTemp != temp)
+          {
+            // push Temperature
+            Firebase.setFloat(firebaseData, "/env/temperature", temp);
+            if (setLCD(temp, humid, type) != 0)
+            {
+              Firebase.setBool(firebaseData, "/door/tempAlert", true);
+            }
+            Serial.println("Alert temp done");
+          }
+        }
+        if (Firebase.getFloat(firebaseData, "/env/humidity"))
+        {
+          float oldHumid = firebaseData.floatData();
+          if (oldHumid != humid)
+          {
+            // push Humidity
+            Firebase.setFloat(firebaseData, "/env/humidity", humid);
+            setLCD(temp, humid, type);
+            Serial.println("set new humidity done");
           }
         }
       }
     }
-    else if(control == "open"){
-      openDoor();
-    }
-    else if(control == "close"){
-      closeDoor();
-    }
+    printLocalTime();
+    buttonPressTime = millis();
   }
-  else
-    Serial.println("DANGEROUS!!!");
-
-  if(!onSecurity && intruderAlert){
-    intruderAlert = false;
-    Firebase.setBool(firebaseData, "door/intruderAlert", intruderAlert);
-    Serial.println("Set new intruder alert");
-  }
-
-  if(millis() - previousMillis > 1 * 1000){
-    if(Firebase.getInt(firebaseData, "/door/monitor/getIn")){
-      int old_getInt = firebaseData.intData();
-      if(old_getInt != getIn){
-        Firebase.setInt(firebaseData, "/door/monitor/getIn", getIn);
-        Serial.println("Set new get-in count");
-      }
-    }
-
-    if(Firebase.getInt(firebaseData, "/door/monitor/getOut")){
-      int old_getOut = firebaseData.intData();
-      if(old_getOut != getOut){
-        Firebase.setInt(firebaseData, "/door/monitor/getOut", getOut);
-        Serial.println("Set new get-out count");
-      }
-    }
-    previousMillis = millis();
-  } 
-  delay(500);
 }
