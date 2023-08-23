@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "author": "Trần Minh Đạt",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 66.88, "left": 159.36, "attrs": {} },
+    {
+      "type": "wokwi-pir-motion-sensor",
+      "id": "pir1",
+      "top": -128.03,
+      "left": -26.62,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pir-motion-sensor",
+      "id": "pir2",
+      "top": -124.78,
+      "left": 344.13,
+      "attrs": {}
+    },
+    { "type": "wokwi-servo", "id": "servo1", "top": -317.1, "left": 19.9, "attrs": {} },
+    {
+      "type": "wokwi-servo",
+      "id": "servo2",
+      "top": -323.27,
+      "left": 284.42,
+      "rotate": -180,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    [ "pir1:VCC", "esp:VIN", "cyan", [ "v0" ] ],
+    [ "pir1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "pir2:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "pir1:OUT", "esp:D25", "green", [ "v0" ] ],
+    [ "esp:D5", "pir2:OUT", "limegreen", [ "h0" ] ],
+    [ "esp:D19", "servo2:PWM", "magenta", [ "h287.19", "v-399.54" ] ],
+    [ "servo2:V+", "esp:VIN", "yellow", [ "h35.76", "v539.25", "h-446.91", "v-64.49" ] ],
+    [ "servo2:GND", "esp:GND.1", "black", [ "h54.99", "v453.95" ] ],
+    [ "servo1:PWM", "esp:D32", "blue", [ "h-147.25", "v379.58" ] ],
+    [ "servo1:V+", "esp:VIN", "red", [ "h-205.33", "v482.82" ] ],
+    [ "servo1:GND", "esp:GND.2", "black", [ "h-189.02", "v485.19" ] ],
+    [ "pir2:VCC", "esp:VIN", "red", [ "v349.41", "h-364.23", "v-71.14" ] ]
+  ],
+  "dependencies": {}
+}

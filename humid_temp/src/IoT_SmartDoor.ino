@@ -1,6 +1,3 @@
-#include <Arduino.h>
-#include "DHT.h"
-#include <FirebaseESP32.h>
 #include "connWifi.h"
 #include "lcd.h"
 // #include "currentTime.h"
@@ -157,22 +154,4 @@ void loop()
     printLocalTime();
     buttonPressTime = millis();
   }
-  if (Firebase.getBool(firebaseData, "/env/type"))
-  {
-    TypeTemp newType = (TypeTemp)firebaseData.boolData();
-    if (newType != type)
-      // set type of temperature
-      type = newType; //(oldType == TypeTemp::Cescius ? false : true);
-      Serial.println("set new type of temperature done");
-  }
-
-  // set data to database
-  postId = postId + 1;
-  // get data from firebase
-  /*
-    // get value type Int
-    Firebase.getInt(firebaseData, "/Label");
-    // assign value into variable
-    variable = Firebase.intData();
-  */
 }
