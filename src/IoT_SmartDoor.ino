@@ -1,5 +1,4 @@
 #include "connWifi.h"
-#include "humidTemp.h"
 #include "lcd.h"
 // #include "currentTime.h"
 
@@ -20,22 +19,22 @@ int buttonPressTime = 0;
 // Init check alertTemp
 bool alertTemp = false;
 
-void pushTimeToFirebase(struct tm *timeinfo)
-{
-  // Format the time and date strings
-  char timeStr[30];
-  strftime(timeStr, sizeof(timeStr), "%H:%M:%S %d/%m/%Y   %Z", timeinfo);
+// void pushTimeToFirebase(struct tm *timeinfo)
+// {
+//   // Format the time and date strings
+//   char timeStr[30];
+//   strftime(timeStr, sizeof(timeStr), "%H:%M:%S %d/%m/%Y   %Z", timeinfo);
 
-  // Add the formatted strings to JSON
-  jsonData.add("alertTemp", timeStr);
-  if (Firebase.pushJSON(firebaseData, "/history/", jsonData))
-    Serial.println("Time data sent to Firebase successfully");
-  else
-  {
-    Serial.println("Failed to send time data to Firebase");
-    Serial.println(firebaseData.errorReason());
-  }
-}
+//   // Add the formatted strings to JSON
+//   jsonData.add("alertTemp", timeStr);
+//   if (Firebase.pushJSON(firebaseData, "/history/", jsonData))
+//     Serial.println("Time data sent to Firebase successfully");
+//   else
+//   {
+//     Serial.println("Failed to send time data to Firebase");
+//     Serial.println(firebaseData.errorReason());
+//   }
+// }
 
 void printLocalTime()
 {
@@ -46,7 +45,7 @@ void printLocalTime()
     return;
   }
   // Push time and date data to Firebase
-  pushTimeToFirebase(&timeinfo);
+  // pushTimeToFirebase(&timeinfo);
 }
 
 void setup()
@@ -82,7 +81,7 @@ void setup()
 
   // set up init parameters
   Firebase.setBool(firebaseData, "/door/tempAlert", alertTemp);
-  Firebase.setBool(firebaseData, "/env/type", type);
+  Firebase.setBool(firebaseData, "/env/type", !type);
   Firebase.setFloat(firebaseData, "/env/temperature", 0);
   Firebase.setFloat(firebaseData, "/env/humidity", 0);
 
@@ -101,7 +100,7 @@ void loop()
     {
       LCDalert();
       Firebase.setBool(firebaseData, "/door/tempAlert", true);
-      Serial.println("alertTemp done");
+      Serial.println("alert temp done");
     }
   }
   else
@@ -136,7 +135,7 @@ void loop()
             {
               Firebase.setBool(firebaseData, "/door/tempAlert", true);
             }
-            Serial.println("set new temperature done");
+            Serial.println("Alert temp done");
           }
         }
         if (Firebase.getFloat(firebaseData, "/env/humidity"))
@@ -152,7 +151,6 @@ void loop()
         }
       }
     }
-    buttonPressTime = millis();
+    printLocalTime();
   }
-  printLocalTime();
 }

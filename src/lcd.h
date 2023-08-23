@@ -1,4 +1,4 @@
-#include "define.h"
+#include "humidTemp.h"
 
 static LiquidCrystal_I2C lcd(I2C_ADDR, LCD_COLUMNS, LCD_LINES);
 
@@ -28,11 +28,11 @@ void LCDreset()
 
 int setLCD(float temp, float humid, TypeTemp type)
 {
-    if (type && temp > 150)
+    if (type == TypeTemp::Fahrenheit && temp > 150)
     {
         postID++;
     }
-    if (!type && temp > 60)
+    if (type == TypeTemp::Cescius && temp > 60)
     {
         postID++;
     }
@@ -50,7 +50,7 @@ int setLCD(float temp, float humid, TypeTemp type)
         lcd.setCursor(0, 0);
         lcd.print(buffer);
         lcd.write(1);
-        if (type)
+        if (type == TypeTemp::Fahrenheit)
             lcd.print("F");
         else
             lcd.print("C");
