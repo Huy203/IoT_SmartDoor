@@ -3,16 +3,160 @@
   "author": "Đỗ Huy",
   "editor": "wokwi",
   "parts": [
-    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": -64.01, "left": -241.92, "attrs": {} },
-    { "type": "wokwi-lcd1602", "id": "lcd1", "top": 120.08, "left": 345.28, "attrs": {} },
-    { "type": "wokwi-dht22", "id": "dht2", "top": -259.98, "left": -58.03, "attrs": {} }
+    {
+      "type": "wokwi-esp32-devkit-v1",
+      "id": "esp",
+      "top": -64.01,
+      "left": -241.92,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht2",
+      "top": -259.98,
+      "left": -58.03,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd2",
+      "top": -154.74,
+      "left": 43.44,
+      "attrs": {
+        "pins": "i2c"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 27.28,
+      "left": 111.35,
+      "attrs": {
+        "color": "green"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 169.49,
+      "left": 117.47,
+      "attrs": {
+        "value": "1000"
+      }
+    }
   ],
   "connections": [
-    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
-    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
-    [ "dht2:SDA", "esp:D22", "green", [ "v0" ] ],
-    [ "dht2:GND", "esp:GND.1", "black", [ "v0" ] ],
-    [ "dht2:VCC", "esp:3V3", "red", [ "v0" ] ]
+    [
+      "esp:TX0",
+      "$serialMonitor:RX",
+      "",
+      []
+    ],
+    [
+      "esp:RX0",
+      "$serialMonitor:TX",
+      "",
+      []
+    ],
+    [
+      "dht2:SDA",
+      "esp:D22",
+      "green",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "dht2:GND",
+      "esp:GND.1",
+      "black",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "dht2:VCC",
+      "esp:3V3",
+      "red",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "lcd2:GND",
+      "esp:GND.1",
+      "black",
+      [
+        "h-30.15",
+        "v206.68"
+      ]
+    ],
+    [
+      "lcd2:VCC",
+      "esp:VIN",
+      "red",
+      [
+        "h-17.77",
+        "v259.76",
+        "h-294.35",
+        "v-50.89"
+      ]
+    ],
+    [
+      "esp:D21",
+      "lcd2:SDA",
+      "green",
+      [
+        "h143.47",
+        "v-8.48"
+      ]
+    ],
+    [
+      "lcd2:SCL",
+      "esp:D22",
+      "green",
+      [
+        "h-81.04",
+        "v59.89"
+      ]
+    ],
+    [
+      "btn1:2.l",
+      "esp:GND.1",
+      "black",
+      [
+        "h-50.76",
+        "v16.12"
+      ]
+    ],
+    [
+      "btn1:2.r",
+      "r1:2",
+      "green",
+      [
+        "h27.15",
+        "v84.07"
+      ]
+    ],
+    [
+      "r1:1",
+      "esp:D25",
+      "green",
+      [
+        "v-1.16",
+        "h-387.05",
+        "v-150.64"
+      ]
+    ],
+    [
+      "btn1:1.l",
+      "esp:3V3",
+      "red",
+      [
+        "h-39.1",
+        "v54.24"
+      ]
+    ]
   ],
   "dependencies": {}
 }
