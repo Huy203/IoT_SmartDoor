@@ -31,10 +31,11 @@ int doorState = false; // state of door - false -> closed | true -> opened
 int getIn = 0; // number of people got into and got out
 int getOut = 0;
 
-bool alertTemp = false; // for temperature alert
-bool alertState = false; // state of alert - false -> no alert | true -> alert
+bool tempAlert = false; // for temperature alert
+bool tempAlertState = false; // state of temperature alert - false -> no alert | true -> alert
 
 bool onSecurity = false; // mode security of door
+
 bool intruderAlert = false; // for intruder alert
 
 int previousMillis = 0; // for push in cyclically
@@ -86,8 +87,10 @@ void handleSensor(){
       }
       else {
         // if on security -> set alert of intruder
-        Serial.println("Intruder Alert!!!");
-        intruderAlert = true;
+        if(!intruderAlert){
+          intruderAlert = true;
+          Serial.println("Intruder Alert!!!");
+        }
       }
     }
   }
@@ -110,8 +113,10 @@ void handleSensor(){
       }
       else {
         // if on security -> set alert of intruder
-        Serial.println("Intruder Alert!!!");
-        intruderAlert = true;
+        if(!intruderAlert){
+          intruderAlert = true;
+          Serial.println("Intruder Alert!!!");
+        }
       }
     }
   }
@@ -137,21 +142,21 @@ void handleSensor(){
 // get signal from web on handle it
 void handleSignal(){
   // read signal of temperature alert
-  if(Firebase.getBool(firebaseData, "door/alertTemp")){
-    alertTemp = firebaseData.boolData();
+  if(Firebase.getBool(firebaseData, "door/tempAlert")){
+    tempAlert = firebaseData.boolData();
   }
   
   // if on temperature alert, open door
-  if(alertTemp){
-    if(!alertState){
-      alertState = true;
+  if(tempAlert){
+    if(!tempAlertState){
+      tempAlertState = true;
       openDoor();
     }
   }
   else {
     // else, read other signal
-    if(alertState)
-      alertState = false;
+    if(tempAlertState)
+      tempAlertState = false;
     
     // read signal of security mode
     if(Firebase.getBool(firebaseData, "door/security")){
@@ -194,10 +199,12 @@ void setup() {
   // read assigned value
   if(Firebase.getInt(firebaseData, "/door/monitor/getIn")){
     getIn = firebaseData.intData();
+    Firebase.setInt(firebaseData, "/door/monitor/getIn", getIn);
   }
 
   if(Firebase.getInt(firebaseData, "/door/monitor/getOut")){
     getOut = firebaseData.intData();
+    Firebase.setInt(firebaseData, "/door/monitor/getOut", getOut);
   }
 
   if(Firebase.getBool(firebaseData, "/door/security")){
@@ -212,9 +219,19 @@ void setup() {
 void loop() {
   handleSignal();
   
-  if(!alertState){
+  if(!tempAlertState){
     if(control == "auto"){
       handleSensor();
+
+      if(onSecurity){
+        if(Firebase.getBool(firebaseData, "door/intruderAlert")){
+          int old_intruderAlert = firebaseData.boolData();
+          if(old_intruderAlert != intruderAlert){ 
+            Firebase.setBool(firebaseData, "door/intruderAlert", intruderAlert);
+            Serial.println("Set new intruder alert");
+          }
+        }
+      }
     }
     else if(control == "open"){
       openDoor();
@@ -226,24 +243,13 @@ void loop() {
   else
     Serial.println("DANGEROUS!!!");
 
-  if(onSecurity){
-    if(Firebase.getBool(firebaseData, "door/intruderAlert")){
-      int old_intruderAlert = firebaseData.boolData();
-      if(old_intruderAlert != intruderAlert){
-        Firebase.setBool(firebaseData, "door/intruderAlert", intruderAlert);
-        Serial.println("Set new intruder alert");
-      }
-    }
-  }
-  else {
-    if(intruderAlert){
-      intruderAlert = false;
-      Firebase.setBool(firebaseData, "door/intruderAlert", intruderAlert);
-      Serial.println("Set new intruder alert");
-    }
+  if(!onSecurity && intruderAlert){
+    intruderAlert = false;
+    Firebase.setBool(firebaseData, "door/intruderAlert", intruderAlert);
+    Serial.println("Set new intruder alert");
   }
 
-  if(millis() - previousMillis > 15 * 60 * 1000){
+  if(millis() - previousMillis > 1 * 1000){
     if(Firebase.getInt(firebaseData, "/door/monitor/getIn")){
       int old_getInt = firebaseData.intData();
       if(old_getInt != getIn){
@@ -260,6 +266,6 @@ void loop() {
       }
     }
     previousMillis = millis();
-  }  
+  } 
   delay(500);
 }
